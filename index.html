@@ -34,6 +34,8 @@
   canvas.width = window.innerWidth * 2;
   canvas.height = window.innerHeight * 2;
   var context = canvas.getContext('2d');
+  var lineWidth = 0;
+  var points = []
 
   canvas.addEventListener('touchstart', function (e) {
     var pressure = 0.1;
@@ -47,16 +49,47 @@
     }
     x                   = e.touches[0].pageX * 2;
     y                   = e.touches[0].pageY * 2;
-    context.lineWidth   = pressure * 50;
+
+    // lineWidth = (pressure * 50 * 0.8 + lineWidth * 0.2)
+    context.lineWidth   = lineWidth// pressure * 50;
     context.strokeStyle = 'black';
     context.lineCap     = 'round';
     context.lineJoin    = 'round';
     context.beginPath();
-    context.moveTo(x, y);
+    context.moveTo(x, y)
+
+    points.push({
+      x, y, lineWidth
+    })
   });
 
   canvas.addEventListener('touchend', function (e) {
-    context.closePath();
+    var pressure = 0.1;
+    var x, y;
+    if (typeof(e.touches[0]["force"]) != "undefined") {
+      if (e.touches[0]["force"] > 0) {
+        pressure = e.touches[0]["force"];
+      }
+    } else {
+      pressure = 1.0;
+    }
+    x                   = e.touches[0].pageX * 2;
+    y                   = e.touches[0].pageY * 2;
+    lineWidth = (Math.log(pressure + 1) * 40 * 0.8 + lineWidth * 0.2)
+
+    context.strokeStyle = 'black';
+    context.lineCap     = 'round';
+    context.lineJoin    = 'round';
+
+    context.lineWidth = lineWidth
+    if (points.length >= 3) {
+      var l = points.length - 1
+      context.quadraticCurveTo(points[l].x, points[l].y, x, y)
+      context.stroke()
+    }
+
+    points = []
+    lineWidth = 0
   });
 
   canvas.addEventListener('touchmove', function (e) {
@@ -71,19 +104,35 @@
     }
     x                   = e.touches[0].pageX * 2;
     y                   = e.touches[0].pageY * 2;
-    context.lineWidth   = pressure * 50;
+    lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
+    points.push({
+      x, y, lineWidth
+    })
     context.strokeStyle = 'black';
     context.lineCap     = 'round';
     context.lineJoin    = 'round';
-    context.lineTo(x, y);
-    context.stroke();
-    context.closePath();
-    context.beginPath();
-    context.moveTo(x, y);
+    // context.lineWidth   = lineWidth// pressure * 50;
+    // context.lineTo(x, y);
+    // context.moveTo(x, y);
+
+
+    if (points.length >= 3) {
+      var l = points.length - 1
+      var xc = (points[l].x + points[l - 1].x) / 2
+      var yc = (points[l].y + points[l - 1].y) / 2
+      context.lineWidth = points[l - 1].lineWidth
+      context.quadraticCurveTo(points[l - 1].x, points[l - 1].y, xc, yc)
+      // context.closePath()
+      context.stroke()
+      context.beginPath()
+      context.moveTo(xc, yc)
+    }
+
     $force.innerHTML   = 'force = ' + pressure;
     $touches.innerHTML = 'touches = ' + JSON.stringify(e.touches);
     e.preventDefault();
   })
+
 </script>
 </body>
 </html>
