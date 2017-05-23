@@ -1,9 +1,9 @@
-# apple-pencil-safari-api-test
+# Demo of Apple Pencil / 3D touch API
 
-A sketch board demo for __Apple Pencil__, __Force Touch__ and __3D Touch__ which supports pressure detection currently. 
+A sketch app demo which supports __Apple Pencil__ and __3D Touch__ pressure detection currently.
 Tested in Safari & Google Chrome on iOS 9.3.
 
-[Testing screen](https://raw.githubusercontent.com/quietshu/apple-pencil-safari-api-test/master/demo.png).
+[Demo](http://quietshu.github.io/apple-pencil-safari-api-test) | [Screenshot](https://raw.githubusercontent.com/quietshu/apple-pencil-safari-api-test/master/demo.png).
 
 ## Resources & refs
 
