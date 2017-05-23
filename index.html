@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Touch API Tests</title>
+  <title>Touch API Test</title>
   <style>
     body {
       position: absolute;
@@ -12,7 +12,14 @@
       top: 0;
       width: 100%;
       height: 100%;
+      font-family: sans-serif;
       font-size: 13px;
+      padding: 1em;
+      box-sizing: border-box;
+    }
+    h1 {
+      margin-top: 0;
+      color: #ccc;
     }
     canvas {
       position: absolute;
@@ -21,116 +28,148 @@
       left: 0;
       top: 0;
     }
+    #info {
+      z-index: 1;
+      position: absolute;
+      bottom: 1em;
+    }
   </style>
 </head>
 <body>
+<h1>Demo of Apple Pencil / 3D touch API</h1>
 <div id="force"></div>
 <div id="touches"></div>
-<canvas></canvas>
+<canvas>Sorry, your browser is too old for this demo.</canvas>
+<div id="info">
+  <a href="https://github.com/quietshu/apple-pencil-safari-api-test" target="_blank">GitHub</a>
+</div>
 <script>
-  var $force = document.querySelectorAll('#force')[0];
-  var $touches = document.querySelectorAll('#touches')[0];
-  var canvas = document.querySelectorAll('canvas')[0];
-  canvas.width = window.innerWidth * 2;
-  canvas.height = window.innerHeight * 2;
-  var context = canvas.getContext('2d');
-  var lineWidth = 0;
+  var $force = document.querySelectorAll('#force')[0]
+  var $touches = document.querySelectorAll('#touches')[0]
+  var canvas = document.querySelectorAll('canvas')[0]
+  var context = canvas.getContext('2d')
+  var lineWidth = 0
+  var isMousedown = false
   var points = []
 
-  canvas.addEventListener('touchstart', function (e) {
-    var pressure = 0.1;
-    var x, y;
-    if (typeof(e.touches[0]["force"]) != "undefined") {
-      if (e.touches[0]["force"] > 0) {
-        pressure = e.touches[0]["force"];
+  canvas.width = window.innerWidth * 2
+  canvas.height = window.innerHeight * 2
+
+  ;['touchstart', 'mousedown'].forEach(function (ev) {
+    canvas.addEventListener(ev, function (e) {
+      var pressure = 0.1
+      var x, y
+      if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+        if (e.touches[0]["force"] > 0) {
+          pressure = e.touches[0]["force"]
+        }
+        x = e.touches[0].pageX * 2
+        y = e.touches[0].pageY * 2
+      } else {
+        pressure = 1.0
+        x = e.pageX * 2
+        y = e.pageY * 2
       }
-    } else {
-      pressure = 1.0;
-    }
-    x                   = e.touches[0].pageX * 2;
-    y                   = e.touches[0].pageY * 2;
 
-    // lineWidth = (pressure * 50 * 0.8 + lineWidth * 0.2)
-    context.lineWidth   = lineWidth// pressure * 50;
-    context.strokeStyle = 'black';
-    context.lineCap     = 'round';
-    context.lineJoin    = 'round';
-    context.beginPath();
-    context.moveTo(x, y)
+      isMousedown = true
 
-    points.push({
-      x, y, lineWidth
-    })
-  });
-
-  canvas.addEventListener('touchend', function (e) {
-    var pressure = 0.1;
-    var x, y;
-    if (typeof(e.touches[0]["force"]) != "undefined") {
-      if (e.touches[0]["force"] > 0) {
-        pressure = e.touches[0]["force"];
-      }
-    } else {
-      pressure = 1.0;
-    }
-    x                   = e.touches[0].pageX * 2;
-    y                   = e.touches[0].pageY * 2;
-    lineWidth = (Math.log(pressure + 1) * 40 * 0.8 + lineWidth * 0.2)
-
-    context.strokeStyle = 'black';
-    context.lineCap     = 'round';
-    context.lineJoin    = 'round';
-
-    context.lineWidth = lineWidth
-    if (points.length >= 3) {
-      var l = points.length - 1
-      context.quadraticCurveTo(points[l].x, points[l].y, x, y)
-      context.stroke()
-    }
-
-    points = []
-    lineWidth = 0
-  });
-
-  canvas.addEventListener('touchmove', function (e) {
-    var pressure = 0.1;
-    var x, y;
-    if (typeof(e.touches[0]["force"]) != "undefined") {
-      if (e.touches[0]["force"] > 0) {
-        pressure = e.touches[0]["force"];
-      }
-    } else {
-      pressure = 1.0;
-    }
-    x                   = e.touches[0].pageX * 2;
-    y                   = e.touches[0].pageY * 2;
-    lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
-    points.push({
-      x, y, lineWidth
-    })
-    context.strokeStyle = 'black';
-    context.lineCap     = 'round';
-    context.lineJoin    = 'round';
-    // context.lineWidth   = lineWidth// pressure * 50;
-    // context.lineTo(x, y);
-    // context.moveTo(x, y);
-
-
-    if (points.length >= 3) {
-      var l = points.length - 1
-      var xc = (points[l].x + points[l - 1].x) / 2
-      var yc = (points[l].y + points[l - 1].y) / 2
-      context.lineWidth = points[l - 1].lineWidth
-      context.quadraticCurveTo(points[l - 1].x, points[l - 1].y, xc, yc)
-      // context.closePath()
-      context.stroke()
+      // lineWidth = (pressure * 50 * 0.8 + lineWidth * 0.2)
+      context.lineWidth = lineWidth// pressure * 50;
+      context.strokeStyle = 'black'
+      context.lineCap = 'round'
+      context.lineJoin = 'round'
       context.beginPath()
-      context.moveTo(xc, yc)
-    }
+      context.moveTo(x, y)
 
-    $force.innerHTML   = 'force = ' + pressure;
-    $touches.innerHTML = 'touches = ' + JSON.stringify(e.touches);
-    e.preventDefault();
+      points.push({
+        x, y, lineWidth
+      })
+    })
+  })
+
+  ;['touchend', 'touchleave', 'mouseup'].forEach(function (ev) {
+    canvas.addEventListener(ev, function (e) {
+      var pressure = 0.1
+      var x, y
+
+      if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+        if (e.touches[0]["force"] > 0) {
+          pressure = e.touches[0]["force"]
+        }
+        x = e.touches[0].pageX * 2
+        y = e.touches[0].pageY * 2
+      } else {
+        pressure = 1.0
+        x = e.pageX * 2
+        y = e.pageY * 2
+      }
+
+      isMousedown = false
+
+      lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
+
+      context.strokeStyle = 'black'
+      context.lineCap = 'round'
+      context.lineJoin = 'round'
+
+      context.lineWidth = lineWidth
+      if (points.length >= 3) {
+        var l = points.length - 1
+        context.quadraticCurveTo(points[l].x, points[l].y, x, y)
+        context.stroke()
+      }
+
+      points = []
+      lineWidth = 0
+    })
+  })
+
+  ;['touchmove', 'mousemove'].forEach(function (ev) {
+    canvas.addEventListener(ev, function (e) {
+      if (!isMousedown) return
+
+      var pressure = 0.1
+      var x, y
+      if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+        if (e.touches[0]["force"] > 0) {
+          pressure = e.touches[0]["force"]
+        }
+        x = e.touches[0].pageX * 2
+        y = e.touches[0].pageY * 2
+      } else {
+        pressure = 1.0
+        x = e.pageX * 2
+        y = e.pageY * 2
+      }
+
+      lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
+      points.push({
+        x, y, lineWidth
+      })
+
+      context.strokeStyle = 'black'
+      context.lineCap = 'round'
+      context.lineJoin = 'round'
+      // context.lineWidth   = lineWidth// pressure * 50;
+      // context.lineTo(x, y);
+      // context.moveTo(x, y);
+
+
+      if (points.length >= 3) {
+        var l = points.length - 1
+        var xc = (points[l].x + points[l - 1].x) / 2
+        var yc = (points[l].y + points[l - 1].y) / 2
+        context.lineWidth = points[l - 1].lineWidth
+        context.quadraticCurveTo(points[l - 1].x, points[l - 1].y, xc, yc)
+        context.stroke()
+        context.beginPath()
+        context.moveTo(xc, yc)
+      }
+
+      $force.innerHTML = 'force = ' + pressure
+      $touches.innerHTML = 'touchev = ' + (e.touches ? JSON.stringify(e.touches[0]) : '')
+      e.preventDefault()
+    })
   })
 
 </script>
