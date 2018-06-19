@@ -1,14 +1,17 @@
-# Demo of Apple Pencil / 3D touch API
+3D Touch / Force Touch API Demo
 
-A sketch app demo which supports __Apple Pencil__ and __3D Touch__ pressure detection currently.
+A demo which supports __Apple Pencil__ and __3D Touch__ pressure detection and Bezier curve drawing.
 Tested in Safari & Google Chrome on iOS 9.3.
 
-[Demo](http://quietshu.github.io/apple-pencil-safari-api-test) | [Screenshot](https://raw.githubusercontent.com/quietshu/apple-pencil-safari-api-test/master/demo.png).
+[Demo](http://quietshu.github.io/apple-pencil-safari-api-test) | [Screenshot](https://raw.githubusercontent.com/quietshu/apple-pencil-safari-api-test/master/demo.png) | [Code (gh-pages)](https://github.com/quietshu/apple-pencil-safari-api-test/blob/gh-pages/index.html).
 
-## Resources & refs
+__Help me test on Android/Windows/macOS devices and leave an issue please!__
+
+## Resources
 
 1. [Touch Events - Level 2, W3C Draft](https://w3c.github.io/touch-events/#widl-Touch-force)
 2. [The `Touch` Object on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Touch)
+3. [`radiusX`](https://developer.mozilla.org/en-US/docs/Web/API/Touch/radiusX)
 
 |API |Capability (Apple devices with iOS 9)|
 |---|---|
