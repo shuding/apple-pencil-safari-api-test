@@ -75,7 +75,7 @@
 
       isMousedown = true
 
-      // lineWidth = (pressure * 50 * 0.8 + lineWidth * 0.2)
+      lineWidth = Math.log(pressure + 1) * 40
       context.lineWidth = lineWidth// pressure * 50;
       context.strokeStyle = 'black'
       context.lineCap = 'round'
@@ -107,7 +107,7 @@
       }
 
       // smoothen line width
-      lineWidth = (Math.log(pressure + 1) * 40 * 0.4 + lineWidth * 0.6)
+      lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
       points.push({ x, y, lineWidth })
 
       context.strokeStyle = 'black'
