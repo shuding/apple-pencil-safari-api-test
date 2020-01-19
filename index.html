@@ -55,6 +55,8 @@
   canvas.width = window.innerWidth * 2
   canvas.height = window.innerHeight * 2
 
+  var requestIdleCallback = window.requestIdleCallback || function (fn) { setTimeout(fn, 1) }
+
   ;['touchstart', 'mousedown'].forEach(function (ev) {
     canvas.addEventListener(ev, function (e) {
       var pressure = 0.1
@@ -81,15 +83,14 @@
       context.beginPath()
       context.moveTo(x, y)
 
-      points.push({
-        x, y, lineWidth
-      })
+      points.push({ x, y, lineWidth })
     })
   })
 
   ;['touchmove', 'mousemove'].forEach(function (ev) {
     canvas.addEventListener(ev, function (e) {
       if (!isMousedown) return
+      e.preventDefault()
 
       var pressure = 0.1
       var x, y
@@ -105,10 +106,9 @@
         y = e.pageY * 2
       }
 
+      // smoothen line width
       lineWidth = (Math.log(pressure + 1) * 40 * 0.4 + lineWidth * 0.6)
-      points.push({
-        x, y, lineWidth
-      })
+      points.push({ x, y, lineWidth })
 
       context.strokeStyle = 'black'
       context.lineCap = 'round'
@@ -128,9 +128,28 @@
         context.moveTo(xc, yc)
       }
 
-      $force.innerHTML = 'force = ' + pressure
-      $touches.innerHTML = 'touchev = ' + (e.touches ? JSON.stringify(e.touches[0]) : '')
-      e.preventDefault()
+      requestIdleCallback(() => {
+        $force.textContent = 'force = ' + pressure
+
+        const touch = e.touches ? e.touches[0] : null
+        if (touch) {
+          $touches.innerHTML = `
+            touchType = ${touch.touchType} ${touch.touchType === 'direct' ? '👆' : '✍️'} <br/>
+            radiusX = ${touch.radiusX} <br/>
+            radiusY = ${touch.radiusY} <br/>
+            rotationAngle = ${touch.rotationAngle} <br/>
+            altitudeAngle = ${touch.altitudeAngle} <br/>
+            azimuthAngle = ${touch.azimuthAngle} <br/>
+          `
+
+          // 'touchev = ' + (e.touches ? JSON.stringify(
+          //   ['force', 'radiusX', 'radiusY', 'rotationAngle', 'altitudeAngle', 'azimuthAngle', 'touchType'].reduce((o, key) => {
+          //     o[key] = e.touches[0][key]
+          //     return o
+          //   }, {})
+          // , null, 2) : '')
+        }
+      })
     })
   })
 

@@ -13,12 +13,15 @@ __Help me test on Android/Windows/macOS devices and leave an issue please!__
 
 ![Screenshot](demo.jpg)
 
-|API |Capability (Apple devices with iOS 9)|
-|---|---|
-|force|:o:|
-|radiusX|:x:|
-|radiusY|:x:|
-|rotationAngle|:x:|
+|API |Capability (Apple devices with iOS 9)|Capability (Apple devices with iOS 13)|
+|---|---|---|
+|force|:white_check_mark:|:white_check_mark:|
+|radiusX|:x:|:white_check_mark:|
+|radiusY|:x:|:white_check_mark:|
+|rotationAngle|:x:|:question:|
+|touchType|:question:|:white_check_mark:|
+|altitudeAngle|:question:|:white_check_mark:|
+|azimuthAngle|:question:|:white_check_mark:|
 
 ## Related Resources
 
