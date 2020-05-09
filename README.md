@@ -9,7 +9,7 @@ A canvas demo featuring:
 
 In vanilla JS. Tested in Safari & Google Chrome on iOS 9.3.
 
-[Demo](http://quietshu.github.io/apple-pencil-safari-api-test) | [Code](https://github.com/quietshu/apple-pencil-safari-api-test/blob/gh-pages/index.html).
+[Demo](http://shuding.github.io/apple-pencil-safari-api-test) | [Code](https://github.com/shuding/apple-pencil-safari-api-test/blob/gh-pages/index.html).
 
 __Help me test on Android/Windows/macOS devices and leave an issue please!__
 
