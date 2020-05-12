@@ -11,7 +11,7 @@ canvas.height = window.innerHeight * 2
 
 const requestIdleCallback = window.requestIdleCallback || function (fn) { setTimeout(fn, 1) };
 
-for (const ev of ["touchstart", "mouedown"]) {
+for (const ev of ["touchstart", "mousedown"]) {
   canvas.addEventListener(ev, function (e) {
     let pressure = 0.1;
     let x, y;
