@@ -9,7 +9,59 @@ let points = []
 canvas.width = window.innerWidth * 2
 canvas.height = window.innerHeight * 2
 
+const strokeHistory = []
+
 const requestIdleCallback = window.requestIdleCallback || function (fn) { setTimeout(fn, 1) };
+
+/**
+ * This function takes in an array of points and draws them onto the canvas.
+ * @param {array} stroke array of points to draw on the canvas
+ * @return {void}
+ */
+function drawOnCanvas (stroke) {
+  context.strokeStyle = 'black'
+  context.lineCap = 'round'
+  context.lineJoin = 'round'
+
+  const l = stroke.length - 1
+  if (stroke.length >= 3) {
+    const xc = (stroke[l].x + stroke[l - 1].x) / 2
+    const yc = (stroke[l].y + stroke[l - 1].y) / 2
+    context.lineWidth = stroke[l - 1].lineWidth
+    context.quadraticCurveTo(stroke[l - 1].x, stroke[l - 1].y, xc, yc)
+    context.stroke()
+    context.beginPath()
+    context.moveTo(xc, yc)
+  } else {
+    const point = stroke[l];
+    context.lineWidth = point.lineWidth
+    context.strokeStyle = point.color
+    context.beginPath()
+    context.moveTo(point.x, point.y)
+    context.stroke()
+  }
+}
+
+/**
+ * Remove the previous stroke from history and repaint the entire canvas based on history
+ * @return {void}
+ */
+function undoDraw () {
+  strokeHistory.pop()
+  context.clearRect(0, 0, canvas.width, canvas.height)
+
+  strokeHistory.map(function (stroke) {
+    if (strokeHistory.length === 0) return
+
+    context.beginPath()
+
+    let strokePath = [];
+    stroke.map(function (point) {
+      strokePath.push(point)
+      drawOnCanvas(strokePath)
+    })
+  })
+}
 
 for (const ev of ["touchstart", "mousedown"]) {
   canvas.addEventListener(ev, function (e) {
@@ -31,13 +83,9 @@ for (const ev of ["touchstart", "mousedown"]) {
 
     lineWidth = Math.log(pressure + 1) * 40
     context.lineWidth = lineWidth// pressure * 50;
-    context.strokeStyle = 'black'
-    context.lineCap = 'round'
-    context.lineJoin = 'round'
-    context.beginPath()
-    context.moveTo(x, y)
 
     points.push({ x, y, lineWidth })
+    drawOnCanvas(points)
   })
 }
 
@@ -64,23 +112,7 @@ for (const ev of ['touchmove', 'mousemove']) {
     lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
     points.push({ x, y, lineWidth })
 
-    context.strokeStyle = 'black'
-    context.lineCap = 'round'
-    context.lineJoin = 'round'
-    // context.lineWidth   = lineWidth// pressure * 50;
-    // context.lineTo(x, y);
-    // context.moveTo(x, y);
-
-    if (points.length >= 3) {
-      const l = points.length - 1
-      const xc = (points[l].x + points[l - 1].x) / 2
-      const yc = (points[l].y + points[l - 1].y) / 2
-      context.lineWidth = points[l - 1].lineWidth
-      context.quadraticCurveTo(points[l - 1].x, points[l - 1].y, xc, yc)
-      context.stroke()
-      context.beginPath()
-      context.moveTo(xc, yc)
-    }
+    drawOnCanvas(points);
 
     requestIdleCallback(() => {
       $force.textContent = 'force = ' + pressure
@@ -95,13 +127,6 @@ for (const ev of ['touchmove', 'mousemove']) {
           altitudeAngle = ${touch.altitudeAngle} <br/>
           azimuthAngle = ${touch.azimuthAngle} <br/>
         `
-
-        // 'touchev = ' + (e.touches ? JSON.stringify(
-        //   ['force', 'radiusX', 'radiusY', 'rotationAngle', 'altitudeAngle', 'azimuthAngle', 'touchType'].reduce((o, key) => {
-        //     o[key] = e.touches[0][key]
-        //     return o
-        //   }, {})
-        // , null, 2) : '')
       }
     })
   })
@@ -126,17 +151,8 @@ for (const ev of ['touchend', 'touchleave', 'mouseup']) {
 
     isMousedown = false
 
-    context.strokeStyle = 'black'
-    context.lineCap = 'round'
-    context.lineJoin = 'round'
+    requestIdleCallback(function () { strokeHistory.push([...points]); points = []})
 
-    if (points.length >= 3) {
-      const l = points.length - 1
-      context.quadraticCurveTo(points[l].x, points[l].y, x, y)
-      context.stroke()
-    }
-
-    points = []
     lineWidth = 0
   })
 };
