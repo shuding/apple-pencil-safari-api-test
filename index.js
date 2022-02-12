@@ -5,6 +5,7 @@ const context = canvas.getContext('2d')
 let lineWidth = 0
 let isMousedown = false
 let points = []
+let allowDirect = true;
 
 canvas.width = window.innerWidth * 2
 canvas.height = window.innerHeight * 2
@@ -63,29 +64,42 @@ function undoDraw () {
   })
 }
 
+/**
+ * Disable or enable direct touch
+ * @return {void}
+ */
+function toggleDirect () {
+  allowDirect = !allowDirect;
+}
+
 for (const ev of ["touchstart", "mousedown"]) {
   canvas.addEventListener(ev, function (e) {
-    let pressure = 0.1;
-    let x, y;
-    if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
-      if (e.touches[0]["force"] > 0) {
-        pressure = e.touches[0]["force"]
+
+    let touch = e.touches ? e.touches[0] : null
+    if(allowDirect || touch.touchType != "direct"){
+
+      let pressure = 0.1;
+      let x, y;
+      if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+        if (e.touches[0]["force"] > 0) {
+          pressure = e.touches[0]["force"]
+        }
+        x = e.touches[0].pageX * 2
+        y = e.touches[0].pageY * 2
+      } else {
+        pressure = 1.0
+        x = e.pageX * 2
+        y = e.pageY * 2
       }
-      x = e.touches[0].pageX * 2
-      y = e.touches[0].pageY * 2
-    } else {
-      pressure = 1.0
-      x = e.pageX * 2
-      y = e.pageY * 2
+
+      isMousedown = true
+
+      lineWidth = Math.log(pressure + 1) * 40
+      context.lineWidth = lineWidth// pressure * 50;
+
+      points.push({ x, y, lineWidth })
+      drawOnCanvas(points)
     }
-
-    isMousedown = true
-
-    lineWidth = Math.log(pressure + 1) * 40
-    context.lineWidth = lineWidth// pressure * 50;
-
-    points.push({ x, y, lineWidth })
-    drawOnCanvas(points)
   })
 }
 
@@ -94,30 +108,35 @@ for (const ev of ['touchmove', 'mousemove']) {
     if (!isMousedown) return
     e.preventDefault()
 
-    let pressure = 0.1
-    let x, y
-    if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
-      if (e.touches[0]["force"] > 0) {
-        pressure = e.touches[0]["force"]
+    let touch = e.touches ? e.touches[0] : null
+    if(allowDirect || touch.touchType != "direct"){
+
+      let pressure = 0.1
+      let x, y
+      if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+        if (e.touches[0]["force"] > 0) {
+          pressure = e.touches[0]["force"]
+        }
+        x = e.touches[0].pageX * 2
+        y = e.touches[0].pageY * 2
+      } else {
+        pressure = 1.0
+        x = e.pageX * 2
+        y = e.pageY * 2
       }
-      x = e.touches[0].pageX * 2
-      y = e.touches[0].pageY * 2
-    } else {
-      pressure = 1.0
-      x = e.pageX * 2
-      y = e.pageY * 2
+
+      // smoothen line width
+      lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
+      points.push({ x, y, lineWidth })
+
+      drawOnCanvas(points);
     }
-
-    // smoothen line width
-    lineWidth = (Math.log(pressure + 1) * 40 * 0.2 + lineWidth * 0.8)
-    points.push({ x, y, lineWidth })
-
-    drawOnCanvas(points);
 
     requestIdleCallback(() => {
       $force.textContent = 'force = ' + pressure
 
-      const touch = e.touches ? e.touches[0] : null
+      let touch = e.touches ? e.touches[0] : null
+
       if (touch) {
         $touches.innerHTML = `
           touchType = ${touch.touchType} ${touch.touchType === 'direct' ? '👆' : '✍️'} <br/>
@@ -126,6 +145,7 @@ for (const ev of ['touchmove', 'mousemove']) {
           rotationAngle = ${touch.rotationAngle} <br/>
           altitudeAngle = ${touch.altitudeAngle} <br/>
           azimuthAngle = ${touch.azimuthAngle} <br/>
+          allowDirect = ${allowDirect} <br/>
         `
       }
     })
