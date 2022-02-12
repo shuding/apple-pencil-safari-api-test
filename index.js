@@ -78,7 +78,7 @@ for (const ev of ["touchstart", "mousedown"]) {
     let pressure = 0.1;
     let x, y;
 
-    let touch = e.touches ? e.touches[0] : null
+    const touch = e.touches ? e.touches[0] : null
     if(allowDirect || touch && touch.touchType != "direct"){
 
       if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
@@ -111,7 +111,7 @@ for (const ev of ['touchmove', 'mousemove']) {
 
     let pressure = 0.1;
     let x, y;
-    let touch = e.touches ? e.touches[0] : null
+    const touch = e.touches ? e.touches[0] : null
 
     if(allowDirect || touch && touch.touchType != "direct"){
       let x, y
@@ -136,8 +136,6 @@ for (const ev of ['touchmove', 'mousemove']) {
 
     requestIdleCallback(() => {
       $force.textContent = 'force = ' + pressure
-
-      let touch = e.touches ? e.touches[0] : null
 
       if (touch) {
         $touches.innerHTML = `
