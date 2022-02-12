@@ -69,17 +69,18 @@ function undoDraw () {
  * @return {void}
  */
 function toggleDirect () {
+  $touches.innerHTML = $touches.innerHTML.replace(`allowDirect = ${String(allowDirect)}`, `allowDirect = ${String(!allowDirect)}`)
   allowDirect = !allowDirect;
 }
 
 for (const ev of ["touchstart", "mousedown"]) {
   canvas.addEventListener(ev, function (e) {
+    let pressure = 0.1;
+    let x, y;
 
     let touch = e.touches ? e.touches[0] : null
-    if(allowDirect || touch.touchType != "direct"){
+    if(allowDirect || touch && touch.touchType != "direct"){
 
-      let pressure = 0.1;
-      let x, y;
       if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
         if (e.touches[0]["force"] > 0) {
           pressure = e.touches[0]["force"]
@@ -108,10 +109,11 @@ for (const ev of ['touchmove', 'mousemove']) {
     if (!isMousedown) return
     e.preventDefault()
 
+    let pressure = 0.1;
+    let x, y;
     let touch = e.touches ? e.touches[0] : null
-    if(allowDirect || touch.touchType != "direct"){
 
-      let pressure = 0.1
+    if(allowDirect || touch && touch.touchType != "direct"){
       let x, y
       if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
         if (e.touches[0]["force"] > 0) {
